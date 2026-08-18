@@ -308,7 +308,7 @@ The network was trained for **5000 epochs** using the manually implemented Adam 
 Final Binary Cross-Entropy loss:
 
 $$
-\boxed{0.000006}
+0.000006
 $$
 
 ### Predictions
@@ -678,41 +678,6 @@ Implementing these algorithms manually makes the mathematical operations behind 
 
 ---
 
-# 🚧 Possible Future Improvements
-
-Some possible extensions to this project include:
-
-* Implement AdamW from scratch
-* Implement RMSProp from scratch
-* Compare Adam and AdamW
-* Implement learning-rate scheduling
-* Add mini-batch training
-* Implement gradient checking using numerical derivatives
-* Test the optimizers on larger datasets
-* Train deeper neural networks
-* Compare optimizers on MNIST
-* Compare the NumPy implementation with PyTorch
-* Analyze convergence speed and parameter trajectories
-* Investigate optimizer behavior under different initializations
-
----
-
-# 👩‍💻 Author
-
-**Sulagna Routray**
-
-Integrated M.Sc. in Mathematics and Computing
-
-### Interests
-
-* Artificial Intelligence
-* Machine Learning
-* Robotics
-* Computer Vision
-* Mathematical Foundations of AI
-* Space Technology
-
----
 
 # ⭐ Summary
 
