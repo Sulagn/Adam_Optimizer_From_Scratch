@@ -1,4 +1,3 @@
-
 # Adam Optimizer from Scratch
 
 A from-scratch implementation and experimental study of the **Adam optimizer using NumPy**, followed by training a small neural network on the XOR classification problem.
@@ -99,7 +98,10 @@ Adam maintains two exponential moving averages of the gradients.
 The first moment tracks the moving average of the gradients:
 
 $$
-m_t = \beta_1 m_{t-1} + (1-\beta_1)g_t
+m_t =
+\beta_1m_{t-1}
++
+(1-\beta_1)g_t
 $$
 
 ### Second Moment
@@ -107,7 +109,10 @@ $$
 The second moment tracks the moving average of the squared gradients:
 
 $$
-v_t = \beta_2 v_{t-1} + (1-\beta_2)g_t^2
+v_t =
+\beta_2v_{t-1}
++
+(1-\beta_2)g_t^2
 $$
 
 Because both moment estimates are initialized to zero, they are biased toward zero during the early iterations. Adam therefore applies bias correction.
@@ -117,13 +122,15 @@ Because both moment estimates are initialized to zero, they are biased toward ze
 Corrected first moment:
 
 $$
-\hat{m}_t = \frac{m_t}{1-\beta_1^t}
+\hat{m}_t =
+\frac{m_t}{1-\beta_1^t}
 $$
 
 Corrected second moment:
 
 $$
-\hat{v}_t = \frac{v_t}{1-\beta_2^t}
+\hat{v}_t =
+\frac{v_t}{1-\beta_2^t}
 $$
 
 ### Parameter Update
@@ -180,7 +187,8 @@ $$
 The output layer uses the sigmoid activation function:
 
 $$
-\sigma(z) = \frac{1}{1+e^{-z}}
+\sigma(z) =
+\frac{1}{1+e^{-z}}
 $$
 
 ---
@@ -599,12 +607,6 @@ Adam-Optimizer-From-Scratch/
 │
 ├── Adam_Optimizer_From_Scratch.ipynb
 ├── README.md
-└── images/
-    ├── adam_theta_vs_iteration.png
-    ├── adam_loss_vs_iteration.png
-    ├── xor_training_loss.png
-    ├── optimizer_comparison.png
-    └── learning_rate_comparison.png
 ```
 
 If the plots are not saved separately, the `images/` directory can be omitted and the results can simply remain inside the Jupyter Notebook.
@@ -678,7 +680,6 @@ Implementing these algorithms manually makes the mathematical operations behind 
 ---
 
 
-
 # ⭐ Summary
 
 This project implements the **Adam optimizer from scratch using NumPy** and demonstrates its application to training a neural network on the XOR classification problem.
@@ -701,5 +702,5 @@ $$
 
 The project also experimentally compares **SGD, Momentum, and Adam** and investigates how the **learning rate affects Adam's convergence**.
 
-
+The main goal was not simply to make the model work, but to understand the mathematics and mechanics behind neural-network optimization by implementing the algorithms from scratch.
 
