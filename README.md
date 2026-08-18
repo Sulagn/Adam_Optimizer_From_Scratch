@@ -1,18 +1,4 @@
-I see the issue. You are still using the **old malformed Markdown** in several places. The main problem is that you have things like:
 
-```markdown
-# $$ \theta_{t+1}
-
-## \theta_t
-
-\eta g_t $$
-```
-
-That is not valid LaTeX formatting. Also, many equations in your pasted README are plain text rather than LaTeX.
-
-**Do not edit individual equations one by one. Replace the whole README with this version.** It has all equations consistently formatted using GitHub's `$...$` and `$$...$$` syntax.
-
-````markdown
 # Adam Optimizer from Scratch
 
 A from-scratch implementation and experimental study of the **Adam optimizer using NumPy**, followed by training a small neural network on the XOR classification problem.
