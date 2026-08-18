@@ -1,8 +1,8 @@
 # Adam Optimizer from Scratch
 
-A from-scratch implementation and experimental study of the **Adam optimizer** using NumPy, followed by training a small neural network on the XOR problem.
+A from-scratch implementation and experimental study of the **Adam optimizer using NumPy**, followed by training a small neural network on the XOR classification problem.
 
-The goal of this project is to understand what happens inside an optimizer rather than relying on pre-built implementations such as `torch.optim.Adam`.
+The purpose of this project is to understand the mathematics and mechanics behind optimization algorithms rather than relying on pre-built implementations such as `torch.optim.Adam`.
 
 ---
 
@@ -16,27 +16,29 @@ In this project, I implemented and studied three optimization methods:
 * Momentum
 * Adam
 
-The project progresses from a simple mathematical optimization problem to a complete neural network trained from scratch.
+The project progresses from a simple mathematical optimization problem to a complete neural network trained entirely using NumPy.
 
-### Main workflow
+### Main Workflow
 
 ```text
-Toy Optimization
-      ↓
+Toy Optimization Problem
+          ↓
 Adam from Scratch
-      ↓
+          ↓
+Neural Network from Scratch
+          ↓
 Forward Propagation
-      ↓
+          ↓
 Binary Cross-Entropy Loss
-      ↓
+          ↓
 Backpropagation
-      ↓
+          ↓
 Adam Optimization
-      ↓
-XOR Neural Network
-      ↓
+          ↓
+XOR Classification
+          ↓
 SGD vs Momentum vs Adam
-      ↓
+          ↓
 Learning Rate Experiment
 ```
 
@@ -53,92 +55,114 @@ The main objectives of this project were:
 5. Understand Adam's bias correction.
 6. Implement a neural network using NumPy.
 7. Implement backpropagation manually.
-8. Train a neural network on XOR.
+8. Train a neural network on the XOR problem.
 9. Compare SGD, Momentum, and Adam.
-10. Study the effect of learning rate on Adam.
+10. Investigate the effect of learning rate on Adam.
 
 ---
 
-## 🧮 Part 1: Adam on a Toy Optimization Problem
+# 🧮 Part 1: Adam on a Toy Optimization Problem
 
-Before using Adam on a neural network, I tested it on a simple objective function:
+Before using Adam on a neural network, I first tested it on a simple mathematical optimization problem.
 
-[
-L(\theta)=\theta^2
-]
+The objective function is:
 
-The gradient is:
+$$
+L(\theta) = \theta^2
+$$
 
-[
-\frac{dL}{d\theta}=2\theta
-]
+The gradient of the objective function is:
+
+$$
+\frac{dL}{d\theta} = 2\theta
+$$
 
 The initial parameter was:
 
-[
-\theta_0=10
-]
+$$
+\theta_0 = 10
+$$
 
-The goal was to minimize the function and move:
+The goal is to minimize the objective function and move the parameter toward:
 
-[
+$$
 \theta \rightarrow 0
-]
+$$
 
-### Adam update
+### Adam Update
 
-Adam maintains two moving averages.
+Adam maintains two exponential moving averages of the gradients.
 
-### First moment
+### First Moment
 
-[
-m_t=\beta_1m_{t-1}+(1-\beta_1)g_t
-]
+The first moment tracks the moving average of the gradients:
 
-### Second moment
+$$
+m_t = \beta_1m_{t-1} + (1-\beta_1)g_t
+$$
 
-[
-v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2
-]
+### Second Moment
 
-Because the moment estimates start at zero, Adam uses bias correction:
+The second moment tracks the moving average of the squared gradients:
 
-[
-\hat m_t=\frac{m_t}{1-\beta_1^t}
-]
+$$
+v_t = \beta_2v_{t-1} + (1-\beta_2)g_t^2
+$$
 
-[
-\hat v_t=\frac{v_t}{1-\beta_2^t}
-]
+Because both moment estimates are initialized to zero, they are biased toward zero during the early iterations. Adam therefore applies bias correction.
 
-The final parameter update is:
+### Bias Correction
 
-[
-\theta_t=
+Corrected first moment:
+
+$$
+\hat{m}_t =
+\frac{m_t}{1-\beta_1^t}
+$$
+
+Corrected second moment:
+
+$$
+\hat{v}_t =
+\frac{v_t}{1-\beta_2^t}
+$$
+
+### Parameter Update
+
+The final Adam update is:
+
+$$
+\theta_t =
 \theta_{t-1}
 ------------
 
 \eta
-\frac{\hat m_t}
-{\sqrt{\hat v_t}+\epsilon}
-]
+\frac{\hat{m}_t}
+{\sqrt{\hat{v}_t}+\epsilon}
+$$
 
 ### Hyperparameters
 
-```text
-Learning rate = 0.1
-β1 = 0.9
-β2 = 0.999
-ε = 1e-8
-```
+| Hyperparameter       |     Value |
+| -------------------- | --------: |
+| Learning rate $\eta$ |       0.1 |
+| $\beta_1$            |       0.9 |
+| $\beta_2$            |     0.999 |
+| $\epsilon$           | $10^{-8}$ |
+
+This experiment demonstrates how Adam uses both the direction and magnitude of recent gradients to adapt parameter updates during optimization.
 
 ---
 
-## 🧠 Part 2: Neural Network from Scratch
+# 🧠 Part 2: Neural Network from Scratch
 
-After testing Adam on a simple function, I implemented a small neural network using only NumPy.
+After implementing Adam on a simple mathematical objective, I used it to train a small neural network on the XOR classification problem.
 
-### Architecture
+The entire neural network was implemented using **NumPy**, without using PyTorch, TensorFlow, or any pre-built optimizer.
+
+## Network Architecture
+
+The network consists of:
 
 ```text
 2 Input Neurons
@@ -148,97 +172,127 @@ After testing Adam on a simple function, I implemented a small neural network us
 1 Output Neuron
 ```
 
-The hidden layer uses:
+The hidden layer uses the hyperbolic tangent activation function:
 
-[
-\tanh(x)
-]
+$$
+A_1 = \tanh(Z_1)
+$$
 
-and the output layer uses:
+The output layer uses the sigmoid activation function:
 
-[
-\sigma(x)=\frac{1}{1+e^{-x}}
-]
-
-### Forward propagation
-
-The hidden layer:
-
-[
-Z_1=XW_1+b_1
-]
-
-[
-A_1=\tanh(Z_1)
-]
-
-The output layer:
-
-[
-Z_2=A_1W_2+b_2
-]
-
-[
-\hat y=\sigma(Z_2)
-]
+$$
+\sigma(z) = \frac{1}{1+e^{-z}}
+$$
 
 ---
 
-## 📉 Loss Function
+# 🔄 Forward Propagation
 
-For the XOR classification problem, Binary Cross-Entropy was used:
+The first layer computes:
 
-[
-L=
+$$
+Z_1 = XW_1 + b_1
+$$
+
+The hidden activation is:
+
+$$
+A_1 = \tanh(Z_1)
+$$
+
+The second layer computes:
+
+$$
+Z_2 = A_1W_2 + b_2
+$$
+
+The final prediction is:
+
+$$
+\hat{y} = \sigma(Z_2)
+$$
+
+Therefore, the complete forward pass is:
+
+```text
+X
+↓
+Z₁ = XW₁ + b₁
+↓
+A₁ = tanh(Z₁)
+↓
+Z₂ = A₁W₂ + b₂
+↓
+ŷ = sigmoid(Z₂)
+```
+
+---
+
+# 📉 Binary Cross-Entropy Loss
+
+Since XOR is a binary classification problem, Binary Cross-Entropy was used as the loss function.
+
+$$
+L =
 -\frac{1}{n}
-\sum_i
+\sum_{i=1}^{n}
 \left[
-y_i\log(\hat y_i)
+y_i\log(\hat{y}_i)
 +
-(1-y_i)\log(1-\hat y_i)
+(1-y_i)\log(1-\hat{y}_i)
 \right]
-]
+$$
+
+The purpose of the optimizer is to minimize this loss by updating the network parameters.
 
 ---
 
-## 🔄 Backpropagation
+# 🔙 Backpropagation
 
-The gradients were calculated manually using the chain rule.
+Backpropagation was implemented manually using the chain rule.
 
 The gradients calculated were:
 
 ```text
-dW1
-db1
-dW2
-db2
+dW₁
+db₁
+dW₂
+db₂
 ```
 
-These gradients were then passed to the optimizer.
-
-The training process was:
+The gradient flow is:
 
 ```text
-Forward Pass
-     ↓
-Calculate Loss
-     ↓
-Backpropagation
-     ↓
-Calculate Gradients
-     ↓
-Optimizer
-     ↓
-Update Weights & Biases
-     ↓
-Repeat
+Loss
+ ↓
+Output Layer
+ ↓
+Hidden Layer
+ ↓
+Input Layer
 ```
+
+More specifically:
+
+$$
+\text{Loss}
+\rightarrow
+Z_2
+\rightarrow
+A_1
+\rightarrow
+Z_1
+\rightarrow
+W_1,b_1
+$$
+
+Backpropagation calculates the gradients, while the optimizer determines how those gradients are used to update the parameters.
 
 ---
 
-## 🚀 Training XOR with Adam
+# 🚀 Part 3: Training XOR with Adam
 
-The XOR dataset is:
+The XOR dataset consists of four examples:
 
 | Input    | Target |
 | -------- | -----: |
@@ -247,17 +301,19 @@ The XOR dataset is:
 | `[1, 0]` |      1 |
 | `[1, 1]` |      0 |
 
-The network was trained for **5000 epochs** using Adam.
+The network was trained for **5000 epochs** using the manually implemented Adam optimizer.
 
-### Training result
+### Training Result
 
 Final Binary Cross-Entropy loss:
 
-```text
-0.000006
-```
+$$
+\boxed{0.000006}
+$$
 
 ### Predictions
+
+The trained network produced:
 
 ```text
 [1.14003288e-07]
@@ -266,7 +322,7 @@ Final Binary Cross-Entropy loss:
 [8.68342740e-06]
 ```
 
-Rounded:
+Rounded predictions:
 
 ```text
 [0]
@@ -284,15 +340,110 @@ Actual labels:
 [0]
 ```
 
-The network successfully learned the XOR mapping.
+The neural network successfully learned the XOR mapping.
 
 ---
 
-## ⚖️ SGD vs Momentum vs Adam
+# ⚖️ Part 4: SGD vs Momentum vs Adam
 
-The same neural network initialization was used for all three optimizers to make the comparison fair.
+To compare the optimizers fairly, all three experiments started from the **same network initialization**.
 
-### Results after 5000 epochs
+The architecture, dataset, loss function, and training budget were kept the same.
+
+Only the optimization algorithm was changed.
+
+## Optimization Methods
+
+### SGD
+
+Standard gradient descent uses:
+
+$$
+\theta_{t+1}
+============
+
+## \theta_t
+
+\eta g_t
+$$
+
+SGD uses only the current gradient.
+
+---
+
+### Momentum
+
+Momentum maintains a velocity:
+
+$$
+v_t =
+\beta v_{t-1}
++
+g_t
+$$
+
+and updates the parameters using:
+
+$$
+\theta_{t+1}
+============
+
+## \theta_t
+
+\eta v_t
+$$
+
+Momentum introduces memory of previous gradients.
+
+---
+
+### Adam
+
+Adam maintains both first and second moment estimates:
+
+$$
+m_t =
+\beta_1m_{t-1}
++
+(1-\beta_1)g_t
+$$
+
+$$
+v_t =
+\beta_2v_{t-1}
++
+(1-\beta_2)g_t^2
+$$
+
+After bias correction:
+
+$$
+\hat{m}_t =
+\frac{m_t}{1-\beta_1^t}
+$$
+
+$$
+\hat{v}_t =
+\frac{v_t}{1-\beta_2^t}
+$$
+
+The parameter update is:
+
+$$
+\theta_t =
+\theta_{t-1}
+------------
+
+\eta
+\frac{\hat{m}_t}
+{\sqrt{\hat{v}_t}+\epsilon}
+$$
+
+---
+
+## Experimental Results
+
+After 5000 epochs:
 
 | Optimizer | Final Loss |
 | --------- | ---------: |
@@ -300,164 +451,289 @@ The same neural network initialization was used for all three optimizers to make
 | Momentum  |   0.000075 |
 | Adam      |   0.000006 |
 
-### Interpretation
-
-SGD uses only the current gradient:
-
-[
-\theta_{t+1}=\theta_t-\eta g_t
-]
-
-Momentum incorporates information from previous gradients:
-
-[
-v_t=\beta v_{t-1}+g_t
-]
-
-Adam combines momentum-like first-moment tracking with second-moment adaptive scaling.
+### Observation
 
 For this particular XOR experiment:
 
 ```text
-SGD       → Slowest convergence
-Momentum  → Faster convergence
-Adam      → Fastest convergence
+SGD
+ ↓
+Slowest convergence
+
+Momentum
+ ↓
+Faster convergence
+
+Adam
+ ↓
+Fastest convergence
 ```
 
-This result is specific to the chosen architecture, initialization, hyperparameters, and dataset. It should not be interpreted as Adam being universally superior to every other optimizer.
+Adam achieved the lowest final loss under the chosen experimental conditions.
+
+However, this does **not** imply that Adam is universally superior to SGD or Momentum. Optimizer performance depends on the dataset, architecture, initialization, learning rate, and other hyperparameters.
 
 ---
 
-## 📊 Learning Rate Experiment
+# 📊 Part 5: Learning Rate Experiment
 
-I also investigated how Adam's learning rate affects convergence.
+The learning rate is one of the most important hyperparameters in optimization.
 
-The network was trained for 1000 epochs using different learning rates.
+To investigate its effect, Adam was trained using four different learning rates:
 
-| Learning Rate | Final Loss |
-| ------------: | ---------: |
-|         0.001 |   0.411976 |
-|          0.01 |   0.005772 |
-|           0.1 |   0.000158 |
-|           0.5 |   0.000061 |
+$$
+\eta \in {0.001,\ 0.01,\ 0.1,\ 0.5}
+$$
 
-### Observation
+The network initialization and other hyperparameters were kept fixed.
 
-A learning rate that is too small can result in very slow convergence.
+## Results
+
+| Learning Rate | Final Loss after 1000 Epochs |
+| ------------: | ---------------------------: |
+|         0.001 |                     0.411976 |
+|          0.01 |                     0.005772 |
+|           0.1 |                     0.000158 |
+|           0.5 |                     0.000061 |
+
+### Observations
+
+A very small learning rate can result in slow convergence.
 
 For this experiment:
 
 ```text
-0.001 → Too slow
-0.01  → Better
+0.001 → Slow convergence
+0.01  → Improved convergence
 0.1   → Fast convergence
 0.5   → Fastest among tested values
 ```
 
-However, increasing the learning rate indefinitely is not beneficial. An excessively large learning rate can cause unstable updates, oscillation, divergence, or numerical problems.
+However, increasing the learning rate indefinitely is not beneficial.
+
+An excessively large learning rate can cause:
+
+* Overshooting
+* Oscillation
+* Divergence
+* Numerical instability
+* `NaN` losses
+
+Therefore, the learning rate must be chosen appropriately for the optimization problem.
 
 ---
 
-## 🛠️ Technologies Used
+# 📈 Experiments and Visualizations
 
-* Python
-* NumPy
-* Matplotlib
-* Jupyter Notebook
+The notebook includes visualizations for:
 
-No deep-learning framework was used for the implementation.
+### 1. Adam Optimization on the Toy Function
 
-In particular, the project does **not** use:
+Tracking:
+
+$$
+\theta
+$$
+
+and:
+
+$$
+L(\theta)
+$$
+
+over iterations.
+
+### 2. XOR Training Loss
+
+Tracking Binary Cross-Entropy loss over training epochs.
+
+### 3. Optimizer Comparison
+
+Comparing:
+
+```text
+SGD
+Momentum
+Adam
+```
+
+on the same XOR problem.
+
+### 4. Learning Rate Comparison
+
+Comparing Adam with:
+
+```text
+η = 0.001
+η = 0.01
+η = 0.1
+η = 0.5
+```
+
+using a logarithmic loss scale.
+
+---
+
+# 🛠️ Technologies Used
+
+* **Python**
+* **NumPy**
+* **Matplotlib**
+* **Jupyter Notebook**
+
+No deep-learning framework was used for the core implementation.
+
+In particular, the project does not use:
 
 ```python
 torch.optim.Adam
 ```
 
-or another pre-built optimizer.
+or any other pre-built optimizer.
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
 ```text
-adam-optimizer-from-scratch/
+Adam-Optimizer-From-Scratch/
 │
 ├── Adam_Optimizer_From_Scratch.ipynb
 ├── README.md
 └── images/
     ├── adam_theta_vs_iteration.png
     ├── adam_loss_vs_iteration.png
-    ├── adam_xor_training_loss.png
+    ├── xor_training_loss.png
     ├── optimizer_comparison.png
     └── learning_rate_comparison.png
 ```
 
-The exact notebook filename can be changed to match the file uploaded to the repository.
+If the plots are not saved separately, the `images/` directory can be omitted and the results can simply remain inside the Jupyter Notebook.
 
 ---
 
-## 🔬 Key Concepts Learned
+# 🧠 Key Concepts Learned
 
-Through this project, I worked through:
+This project provided hands-on experience with:
 
 * Gradient Descent
 * Stochastic Gradient Descent
 * Momentum
-* Adaptive optimization
 * Adam
 * First moment estimation
 * Second moment estimation
 * Bias correction
-* Learning rates
+* Adaptive learning rates
 * Forward propagation
 * Backpropagation
 * Chain rule
 * Binary Cross-Entropy
 * Neural network parameter updates
 * Optimization convergence
+* Learning-rate selection
 * Experimental comparison of optimizers
 
 ---
 
-## 📈 Key Takeaways
-
-The main lessons from this implementation were:
+# 💡 Key Takeaways
 
 ### 1. Backpropagation and optimization are different
 
-Backpropagation calculates:
+Backpropagation calculates the gradient:
 
-[
+$$
 \nabla_\theta L
-]
+$$
 
-The optimizer determines how those gradients are used to update the parameters.
-
-### 2. Momentum provides gradient memory
-
-Instead of responding only to the current gradient, Momentum incorporates previous gradients.
-
-### 3. Adam combines two ideas
-
-Adam tracks both:
-
-* the direction of recent gradients
-* the magnitude of recent gradients
-
-This allows adaptive parameter updates.
-
-### 4. Hyperparameters matter
-
-The learning rate can dramatically change the training behavior of an optimizer.
-
-### 5. Implementing algorithms from scratch improves understanding
-
-Writing the optimizer manually makes the mathematical operations behind neural network training much more concrete.
+The optimizer uses that gradient to determine how the parameters should be updated.
 
 ---
 
-## ⭐ Summary
+### 2. Momentum provides memory
 
-This project implements **Adam from scratch using NumPy** and demonstrates its use in training a neural network on XOR.
+Instead of using only the current gradient, Momentum incorporates information from previous gradients.
 
-The project moves from the mathematical definition of Adam to a complete neural-network training pipeline, followed by controlled experiments comparing **SGD, Momentum, and Adam** and investigating the effect of the learning rate.
+---
+
+### 3. Adam combines two ideas
+
+Adam tracks:
+
+* The moving average of gradients
+* The moving average of squared gradients
+
+This allows it to adapt parameter updates based on both direction and magnitude.
+
+---
+
+### 4. Learning rate matters
+
+Even with the same optimizer, changing the learning rate can dramatically change convergence behavior.
+
+---
+
+### 5. Implementation from scratch builds deeper understanding
+
+Implementing these algorithms manually makes the mathematical operations behind neural-network training much more concrete.
+
+---
+
+# 🚧 Possible Future Improvements
+
+Some possible extensions to this project include:
+
+* Implement AdamW from scratch
+* Implement RMSProp from scratch
+* Compare Adam and AdamW
+* Implement learning-rate scheduling
+* Add mini-batch training
+* Implement gradient checking using numerical derivatives
+* Test the optimizers on larger datasets
+* Train deeper neural networks
+* Compare optimizers on MNIST
+* Compare the NumPy implementation with PyTorch
+* Analyze convergence speed and parameter trajectories
+* Investigate optimizer behavior under different initializations
+
+---
+
+# 👩‍💻 Author
+
+**Sulagna Routray**
+
+Integrated M.Sc. in Mathematics and Computing
+
+### Interests
+
+* Artificial Intelligence
+* Machine Learning
+* Robotics
+* Computer Vision
+* Mathematical Foundations of AI
+* Space Technology
+
+---
+
+# ⭐ Summary
+
+This project implements the **Adam optimizer from scratch using NumPy** and demonstrates its application to training a neural network on the XOR classification problem.
+
+The project progresses from a simple mathematical optimization problem to a complete neural-network training pipeline involving:
+
+$$
+\boxed{
+\text{Forward Propagation}
+\rightarrow
+\text{Loss}
+\rightarrow
+\text{Backpropagation}
+\rightarrow
+\text{Adam}
+\rightarrow
+\text{Parameter Update}
+}
+$$
+
+The project also experimentally compares **SGD, Momentum, and Adam** and investigates how the **learning rate affects Adam's convergence**.
+
+The main goal was not simply to make the model work, but to understand the mathematics and mechanics behind neural-network optimization by implementing the algorithms from scratch.
